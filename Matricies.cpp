@@ -16,14 +16,10 @@ class matrix{
             if (row_dim != col_dim)square = false;
 
             for(int i=1; i<M.size(); i++){
-                if(row_dim != M[i].size()){
-                    throw std::invalid_argument("Not a valid matrix");
-                };
+                if(row_dim != M[i].size()) throw std::invalid_argument("Not a valid matrix");
             };
 
-            for(int i=1; i<M.size(); i++){
-                order.push_back(i);
-            };
+            for(int i=1; i<M.size(); i++) order.push_back(i);
         };
 
 
@@ -46,9 +42,54 @@ class matrix{
             };
         };
 
+
         std::vector<double> solve(std::vector<double> b){
             if(square){ return lin_sys(b); }
             else{ return l_sqrs(b); };
+        };
+
+
+        std::vector<double> transform(std::vector<double> v){
+            std::vector<double> solution;
+            for (int i=0; i< col_dim; i++) solution.push_back(0.0);
+
+            for(int i=0; i<col_dim; i++){
+                for(int j=0; j<row_dim; j++) solution[i] += A[i][j] * v[j];
+            };
+
+            return solution;
+        };
+
+
+        std::vector<double> max_eigen(){
+            double lmbda = 0.0;
+            double max = 1.0;
+            std::vector<double> v;
+            for (int i=0; i< col_dim; i++){
+                v.push_back(std::rand()/RAND_MAX);
+            };
+
+            while (std::abs(lmbda - max) > 0.000001){
+                lmbda = max;
+                v = transform(v);
+                max = std::abs(v[0]);
+                for (int i=1; i< col_dim; i++){
+                    if (std::abs(v[i]) > max) max = std::abs(v[i]);
+                };
+
+                for (int i=1; i< col_dim; i++) v[i] /= max;
+            };
+
+            lmbda = max;
+            max = 0.0;
+            for (int i=1; i< col_dim; i++) max += v[i]*v[i];
+            max = std::sqrt(max);
+            for (int i=1; i< col_dim; i++) v[i] /= max;
+            return v;
+        };
+
+
+        matrix all_eigen(){
         };
 
 
@@ -185,6 +226,8 @@ class matrix{
 
             decomp_current = true;
         };
+
+
 
         std::vector<std::vector<double>> A;         // the actual entries of the matrix
         std::vector<std::vector<double>> LU;        // the triangular decomposition of the matrix
