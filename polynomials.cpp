@@ -80,10 +80,9 @@ class complex{
 class polynomial{
 
     public:
-        polynomial(std::vector<double> coef){
+        polynomial(vector<double> coef){
             coefficients = coef;
             deg = coef.size();
-
         };
 
         double find_real_root(double guess){    // find real root from starting point via newtons method
@@ -99,72 +98,86 @@ class polynomial{
             return cur;
         };
 
-        std::vector<complex> find_root(complex guess){    // find a real root or complex conjugate pair
+        vector<complex> find_root(complex guess){    // find a real root or complex conjugate pair
             complex prev(guess.r-1.0, guess.i-1.0);
             complex cur = guess;
-            complex d(0.0, 0.0);
-            std::vector<complex> roots;
+            vector<complex> roots;
 
             while(abs(prev.norm()-cur.norm()) > 0.0000001){
                 prev = cur;
-                d = c_deriv_at(cur);
-                if(d.r == 0 and d.i == 0) cur = cur + 0.01;
-                cur = cur - c_at(cur)/d;
+                cur = cur - c_at(cur)/c_deriv_at(cur);
             };
             roots.push_back(cur);
             if (abs(cur.i) > 0.00001) roots.push_back(cur.conj());
+            else cur.i =0.0;
             return roots;
         };
 
-        std::vector<complex> jt_roots(){        // find all roots via the Jenkins-Traub method
+        vector<complex> jt_roots(){        // find all roots via the Jenkins-Traub method
 
         };
 
-        std::vector<complex> newton_roots(){    // find all roots via newtons method
+        vector<complex> newton_roots(){    // find all roots via newtons method
+            complex guess(0.0, 0.0);
+            vector<complex> next;
+            vector<complex> roots;
+            vector<double> temp = coefficients;
 
-        };
+            while (roots.size() < deg){
+                guess.r = rand()%100 -50;
+                guess.i = rand()%100 -50;
+                next = newton_roots();
+                for (int i=0; i<next.size(); i++) roots.push_back(next[i]);
+
+                // todo: perform the synthetic division 
+
+            };
+            coefficients = temp;
+            return roots;
+            };
 
         double at(double x){                    // evalutate at real number
-            double result=0.0;
-            for(int i=0; i<deg; i++) result += coefficients[i]*pow(x,i);
+            double result=coefficients[deg-1];
+            for(int i=deg-2; i>=0; i--) result = result*x + coefficients[i];
             return result;
         };
 
         double deriv_at(double x){              // evaluate deriv at real number
-            double result=0.0;
-            for(int i=1; i<deg; i++) result += coefficients[i]*i*pow(x,i-1);
+            double result=coefficients[deg-1]*(deg-1.0);
+            for(int i=deg-2; i>=1; i--) result = result*x + coefficients[i]*i;
             return result;
         };
 
         complex c_at(complex z){                // evaluate at complex number
-            complex result(0.0, 0.0);
-            for(int i=0; i<deg; i++) result = result + z.pow(i) * coefficients[i];
+            complex result(coefficients[deg-1], 0.0);
+            for(int i=deg-2; i>=0; i--) result = result*z + coefficients[i];
             return result;
         };
 
         complex c_deriv_at(complex z){          // evaluate derivative at complex number
-            complex result(0.0, 0.0);
-            for(int i=1; i<deg; i++) result = result + z.pow(i-1) *i*coefficients[i];
+            complex result(coefficients[deg-1]*(deg-1.0), 0.0);
+            for(int i=deg-2; i>=1; i--) result = result*z + coefficients[i]*i;
             return result;
         };
 
     private:
-        std::vector<double> coefficients;
+        vector<double> coefficients;
         int deg;
 };
 
 
 int main(){
-    std::vector<double> meep = {-2.0, 0.0, 1.0};
+    vector<double> meep = {-2.0, 0.0, 1.0};
     polynomial beep(meep);
     cout<<beep.at(1.0)<<endl;
     cout<<beep.deriv_at(1.0)<<endl;
     cout<<beep.find_real_root(1.0)<<endl;
 
-    std::vector<double> moop = {-1.0, 0.0, 0.0, 1.0};
+    vector<double> moop = {-1.0, 0.0, 0.0, 1.0};
     polynomial boop(moop);
     complex guess(-1.0, -1.0);
-    std::vector<complex> roots = boop.find_root(guess);
+    vector<complex> roots = boop.find_root(guess);
     cout<<roots[0];
     cout<<roots[1];
+
 };
