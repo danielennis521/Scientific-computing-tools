@@ -1,84 +1,8 @@
 #include<cmath>
 #include<iostream>
 #include<vector>
+#include "complex.h"
 using namespace std;
-
-class complex{
-
-    public:
-        complex(){
-            r = i = 0.0;
-        };
-
-        complex(double real, double imag){
-            r = real;
-            i = imag;
-        };
-
-        double norm(){
-            return sqrt(r*r + i*i);
-        };
-
-        complex pow(int n){
-            complex result(r, i);
-            if (n==0){ 
-                result.r = 1.0;
-                result.i = 0.0;
-            }else{
-                 for(int j=1; j<n; j++) result = result*(*this);
-            };
-            return result;
-        };
-
-        complex conj(){
-            complex c(r, -1.0*i);
-            return c;
-        };
-
-        complex operator+(complex const& c){
-            complex res(r + c.r, i+c.i);
-            return res;
-        };
-
-        complex operator+(double x){
-            complex res(r + x, i);
-            return res;
-        };
-
-        complex operator-(complex const& c){
-            complex res(r - c.r, i-c.i);
-            return res;
-        };
-
-        complex operator*(complex const& c){
-            complex res(r*c.r - i*c.i, r*c.i + i*c.r);
-            return res;
-        };
-
-        complex operator*(double a){
-            complex res(r*a, i*a);
-            return res;
-        };
-
-        complex operator/(complex c){
-            complex res(r*c.r + i*c.i, i*c.r - r*c.i);
-            double n = std::pow(c.norm(),2);
-            res.i = res.i/n;
-            res.r = res.r/n;
-            return res;
-        };
-
-        friend ostream& operator<<(ostream &out, const complex &c){
-            if (c.i < 0.0) out << c.r << "-i" << abs(c.i);
-            else if (c.i == 0.0) out << c.r;
-            else out << c.r << "+i" << c.i;
-            return out;
-        };
-
-        double r, i;
-    private:
-};
-
 
 class polynomial{
 
