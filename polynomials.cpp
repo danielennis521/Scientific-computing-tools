@@ -6,6 +6,10 @@ using namespace std;
 class complex{
 
     public:
+        complex(){
+            r = i = 0.0;
+        };
+
         complex(double real, double imag){
             r = real;
             i = imag;
@@ -71,8 +75,7 @@ class complex{
             return out;
         };
 
-        double r;
-        double i;
+        double r, i;
     private:
 };
 
@@ -82,7 +85,7 @@ class polynomial{
     public:
         polynomial(vector<double> coef){
             coefficients = coef;
-            deg = coef.size();
+            deg = coef.size() - 1;
         };
 
         double find_real_root(double guess){    // find real root from starting point via newtons method
@@ -98,19 +101,16 @@ class polynomial{
             return cur;
         };
 
-        vector<complex> find_root(complex guess){    // find a real root or complex conjugate pair
+        complex find_root(complex guess){    // find a real root or complex conjugate pair
             complex prev(guess.r-1.0, guess.i-1.0);
             complex cur = guess;
-            vector<complex> roots;
 
             while(abs(prev.norm()-cur.norm()) > 0.0000001){
                 prev = cur;
-                cur = cur - c_at(cur)/c_deriv_at(cur);
+                cur = cur - at(cur)/deriv_at(cur);
             };
-            roots.push_back(cur);
-            if (abs(cur.i) > 0.00001) roots.push_back(cur.conj());
-            else cur.i =0.0;
-            return roots;
+            if (abs(cur.i) < 0.00001) cur.i =0.0;
+            return cur;
         };
 
         vector<complex> jt_roots(){        // find all roots via the Jenkins-Traub method
@@ -118,46 +118,89 @@ class polynomial{
         };
 
         vector<complex> newton_roots(){    // find all roots via newtons method
-            complex guess(0.0, 0.0);
-            vector<complex> next;
+            complex guess, next, d;
             vector<complex> roots;
             vector<double> temp = coefficients;
+            vector<double> q;
+            double a, b, r1, r2, s1, s2;
+            int num_found=0;
+            int mult;
+            bool check=true;
 
-            while (roots.size() < deg){
+            while (num_found <= deg){
                 guess.r = rand()%100 -50;
                 guess.i = rand()%100 -50;
-                next = newton_roots();
-                for (int i=0; i<next.size(); i++) roots.push_back(next[i]);
+                next = find_root(guess);
+                roots.push_back(next);
 
-                // todo: perform the synthetic division 
+                if(next.i == 0){        // monomial synthetic division
+                    a = next.r;
+                    r1 = coefficients[deg];
+                    coefficients.pop_back();
+                    deg--;
+                    for(int i=deg-1; i>=0; i--){
+                        s1 = coefficients[i];
+                        coefficients[i] = r1;
+                        r1 = s1 + r1*a;
+                    };
+                }else{                  // quadratic synthetic division
+                    a = next.r*next.r + next.i*next.i;
+                    b = -2.0 * next.r;
+                    roots.push_back(next.conj());
+                    for(int i=0; i<deg-2; i++) q.push_back(0.0);
 
+                    for(int i=deg-2; i>=0; i--){
+                        q[i] = coefficients[i+2];
+                        coefficients[i+1] -= q[i]*b;
+                        coefficients[i] -= q[i]*a;
+                    };
+
+
+                
+                };
+                mult=1;
+                while(check){            // identify multiplicities and adjust num_found
+                    d = nth_deriv_at(next, mult);
+                    if(d.norm() < 0.000001 ) mult++;
+                    else check=false;
+                };
+                if (next.i==0) num_found += mult;
+                else num_found += 2*mult;
             };
             coefficients = temp;
             return roots;
             };
 
         double at(double x){                    // evalutate at real number
-            double result=coefficients[deg-1];
-            for(int i=deg-2; i>=0; i--) result = result*x + coefficients[i];
+            double result=coefficients[deg];
+            for(int i=deg-1; i>=0; i--) result = result*x + coefficients[i];
             return result;
         };
 
         double deriv_at(double x){              // evaluate deriv at real number
-            double result=coefficients[deg-1]*(deg-1.0);
-            for(int i=deg-2; i>=1; i--) result = result*x + coefficients[i]*i;
+            double result=coefficients[deg]*deg;
+            for(int i=deg-1; i>=1; i--) result = result*x + coefficients[i]*i;
             return result;
         };
 
-        complex c_at(complex z){                // evaluate at complex number
-            complex result(coefficients[deg-1], 0.0);
-            for(int i=deg-2; i>=0; i--) result = result*z + coefficients[i];
+        complex at(complex z){                // evaluate at complex number
+            complex result(coefficients[deg], 0.0);
+            for(int i=deg-1; i>=0; i--) result = result*z + coefficients[i];
             return result;
         };
 
-        complex c_deriv_at(complex z){          // evaluate derivative at complex number
-            complex result(coefficients[deg-1]*(deg-1.0), 0.0);
-            for(int i=deg-2; i>=1; i--) result = result*z + coefficients[i]*i;
+        complex deriv_at(complex z){          // evaluate derivative at complex number
+            complex result(coefficients[deg]*deg, 0.0);
+            for(int i=deg-1; i>=1; i--) result = result*z + coefficients[i]*i;
             return result;
+        };
+
+        double nth_deriv_at(double x, int n){
+
+        };
+
+        complex nth_deriv_at(complex z, int n){
+
         };
 
     private:
@@ -176,8 +219,11 @@ int main(){
     vector<double> moop = {-1.0, 0.0, 0.0, 1.0};
     polynomial boop(moop);
     complex guess(-1.0, -1.0);
-    vector<complex> roots = boop.find_root(guess);
-    cout<<roots[0];
-    cout<<roots[1];
+    complex root = boop.find_root(guess);
+    cout<<root<<endl;
+    vector<complex> roots = boop.newton_roots();
+    cout<<roots[0]<<endl;
+    cout<<roots[1]<<endl;
+    cout<<roots[2]<<endl;
 
 };
