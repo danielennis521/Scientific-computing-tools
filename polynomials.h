@@ -16,6 +16,10 @@ public:
 
     void disp();
 
+    int get_deg();
+
+    vector<double> get_coeff();
+
     double at(double x);
 
     complex at(complex z);
@@ -33,5 +37,15 @@ public:
     complex find_root(complex guess);
 
     vector<complex> newton_roots();
+
+    polynomial operator+(polynomial p);
+
+    polynomial operator+(double x);
+
+    polynomial operator-(polynomial p);
+
+    polynomial operator-(double x);
+
+    int counter_find_root(complex guess);
 
 };
