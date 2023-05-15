@@ -15,7 +15,7 @@ double polynomial::find_real_root(double guess){    // find real root from start
     double prev = guess-1.0;
     double cur = guess;
 
-    while(abs(prev-cur) > 0.0000001){
+    while(abs(prev-cur) > 0.0000000000001){
         prev = cur;
         if (deriv_at(cur) == 0.0) cur += 0.00001; 
         cur -= at(cur)/deriv_at(cur);
@@ -28,12 +28,25 @@ complex polynomial::find_root(complex guess){    // find a real root or complex 
     complex prev(guess.r-1.0, guess.i-1.0);
     complex cur = guess;
 
-    while(abs(prev.norm()-cur.norm()) > 0.0000001){
+    while(abs(prev.norm()-cur.norm()) > 0.0000000000001){
         prev = cur;
         cur = cur - at(cur)/deriv_at(cur);
     };
-    if (abs(cur.i) < 0.00001) cur.i =0.0;
+    if (abs(cur.i) < 0.00000000001) cur.i =0.0;
     return cur;
+};
+
+int polynomial::counter_find_root(complex guess){    // find a root and return the root and iterations 
+    complex prev(guess.r-1.0, guess.i-1.0);
+    complex cur = guess;
+    int counter = 0;
+
+    while(abs(prev.norm()-cur.norm()) > 1.0e-20){
+        prev = cur;
+        cur = cur - at(cur)/deriv_at(cur);
+        counter++;
+    };
+    return counter;
 };
 
 /*
@@ -83,19 +96,13 @@ vector<complex> polynomial::newton_roots(){    // find all roots via newtons met
             coefficients.pop_back();
             for(int i=0; i<=deg-num_found; i++) coefficients[i] = q[i];
         };
-        mult=1;
-        while(check){            // identify multiplicities and adjust num_found
-            d = nth_deriv_at(next, mult);
-            if(d.norm() < 0.000001 ) mult++;
-            else check=false;
-        };
-        if (next.i==0) num_found += mult;
-        else num_found += 2*mult;
+        if (next.i==0) num_found ++;
+        else num_found += 2;
     };
 
     coefficients = temp;
     return roots;
-    };
+};
 
 double polynomial::at(double x){                    // evalutate at real number
     double result=coefficients[deg];
@@ -122,14 +129,70 @@ complex polynomial::deriv_at(complex z){          // evaluate derivative at comp
 };
 
 double polynomial::nth_deriv_at(double x, int n){
-
+    double c, result;
+    c=1.0;
+    for(int j=deg; j>deg-n; j--) c*=j;
+    result=c*coefficients[deg];
+    for(int i=deg-1; i>=n; i--){
+        c = 1.0;
+        for(int j=i; j>deg-n; j--) c*=j;
+        result += result*x + c*coefficients[i];
+    };
 };
 
 complex polynomial::nth_deriv_at(complex z, int n){
 
 };
 
+polynomial polynomial::operator+(polynomial p){
+    vector<double> s = coefficients;
+    vector<double> t = p.get_coeff();
+    int m = min(deg, p.get_deg());
+
+    for(int i=0; i<=m; i++) s[i] += t[i];
+    if (deg > p.get_deg()){
+        for(int i=m+1; i<=deg; i++) s.push_back(t[i]);
+    };
+    polynomial result(s);
+    return result;
+};
+
+polynomial polynomial::operator+(double x){
+    vector<double> s = coefficients;
+    s[deg] += x;
+    polynomial result(s);
+    return result;
+};
+
+polynomial polynomial::operator-(polynomial p){
+    vector<double> s = coefficients;
+    vector<double> t = p.get_coeff();
+    int m = min(deg, p.get_deg());
+
+    for(int i=0; i<=m; i++) s[i] -= t[i];
+    if (deg > p.get_deg()){
+        for(int i=m+1; i<=deg; i++) s.push_back(-1.0*t[i]);
+    };
+    polynomial result(s);
+    return result;
+};
+
+polynomial polynomial::operator-(double x){
+    vector<double> s = coefficients;
+    s[deg] -= x;
+    polynomial result(s);
+    return result;
+};
+
 void polynomial::disp(){
     for(int i=0; i<=deg; i++) cout<<coefficients[i]<<' ';
     cout<<endl;
 }
+
+int polynomial::get_deg(){
+    return deg;
+};
+
+vector<double> polynomial::get_coeff(){
+    return coefficients;
+};
