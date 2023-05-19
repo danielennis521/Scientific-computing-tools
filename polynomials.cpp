@@ -15,7 +15,7 @@ double polynomial::find_real_root(double guess){    // find real root from start
     double prev = guess-1.0;
     double cur = guess;
 
-    while(abs(prev-cur) > 0.0000000000001){
+    while(abs(prev-cur) > 1.0e-20){
         prev = cur;
         if (deriv_at(cur) == 0.0) cur += 0.00001; 
         cur -= at(cur)/deriv_at(cur);
@@ -28,11 +28,11 @@ complex polynomial::find_root(complex guess){    // find a real root or complex 
     complex prev(guess.r-1.0, guess.i-1.0);
     complex cur = guess;
 
-    while(abs(prev.norm()-cur.norm()) > 0.0000000000001){
+    while(abs(prev.norm()-cur.norm()) > 1.0e-20){
         prev = cur;
         cur = cur - at(cur)/deriv_at(cur);
     };
-    if (abs(cur.i) < 0.00000000001) cur.i =0.0;
+    if (abs(cur.i) < 1.0e-12) cur.i = 0.0;
     return cur;
 };
 
