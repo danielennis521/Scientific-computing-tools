@@ -11,6 +11,17 @@ polynomial::polynomial(vector<double> coef){
     deg = coef.size() - 1;
 };
 
+polynomial::polynomial(polynomial &p){
+    vector<double> coef = p.get_coeff();
+    coefficients = coef;
+    deg = coef.size();
+};
+
+polynomial::polynomial(){
+    vector<double> coeff;
+    deg = 0;
+};
+
 double polynomial::find_real_root(double guess){    // find real root from starting point via newtons method
     double prev = guess-1.0;
     double cur = guess;
@@ -24,7 +35,7 @@ double polynomial::find_real_root(double guess){    // find real root from start
     return cur;
 };
 
-complex polynomial::find_root(complex guess){    // find a real root or complex conjugate pair
+complex polynomial::find_root(complex& guess){    // find a real root or complex conjugate pair
     complex prev(guess.r-1.0, guess.i-1.0);
     complex cur = guess;
 
@@ -140,11 +151,11 @@ double polynomial::nth_deriv_at(double x, int n){
     };
 };
 
-complex polynomial::nth_deriv_at(complex z, int n){
+complex polynomial::nth_deriv_at(complex& z, int n){
 
 };
 
-polynomial polynomial::operator+(polynomial p){
+polynomial polynomial::operator+(polynomial& p){
     vector<double> s = coefficients;
     vector<double> t = p.get_coeff();
     int m = min(deg, p.get_deg());
@@ -164,7 +175,7 @@ polynomial polynomial::operator+(double x){
     return result;
 };
 
-polynomial polynomial::operator-(polynomial p){
+polynomial polynomial::operator-(polynomial& p){
     vector<double> s = coefficients;
     vector<double> t = p.get_coeff();
     int m = min(deg, p.get_deg());
@@ -182,6 +193,18 @@ polynomial polynomial::operator-(double x){
     s[deg] -= x;
     polynomial result(s);
     return result;
+};
+
+polynomial polynomial::operator*(polynomial& p){
+
+};
+
+polynomial polynomial::operator*(double x){
+
+};
+
+double& polynomial::operator[](const int i){
+    return coefficients[i];
 };
 
 void polynomial::disp(){
