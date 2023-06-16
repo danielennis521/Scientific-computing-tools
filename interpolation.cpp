@@ -4,7 +4,7 @@
 #include "interpolation.h"
 
 
-polynomial lagrange_interp(vector<double> x, vector<double> y){
+polynomial lagrange_coeff(vector<double> x, vector<double> y){
     if (x.size() != y.size()) throw invalid_argument( "vectors must be of equal size" );
     int n=x.size();
     vector<double> u;
@@ -34,7 +34,7 @@ polynomial lagrange_interp(vector<double> x, vector<double> y){
 };
 
 
-polynomial newton_interp(vector<double> x, vector<double> y){
+polynomial newton_coeff(vector<double> x, vector<double> y){
 
     if (x.size() != y.size()) throw invalid_argument( "vectors must be of equal size" );
 
