@@ -14,6 +14,10 @@ private:
 public:
     polynomial(vector<double> coef);
 
+    polynomial(polynomial &p);
+
+    polynomial();
+
     void disp();
 
     int get_deg();
@@ -30,21 +34,27 @@ public:
 
     double nth_deriv_at(double x, int n);
 
-    complex nth_deriv_at(complex z, int n);
+    complex nth_deriv_at(complex& z, int n);
 
     double find_real_root(double guess);
 
-    complex find_root(complex guess);
+    complex find_root(complex& guess);
 
     vector<complex> newton_roots();
 
-    polynomial operator+(polynomial p);
+    polynomial operator+(polynomial& p);
 
     polynomial operator+(double x);
 
-    polynomial operator-(polynomial p);
+    polynomial operator-(polynomial& p);
 
     polynomial operator-(double x);
+
+    polynomial operator*(polynomial& p);
+
+    polynomial operator*(double x);
+
+    double& operator[](const int i);
 
     int counter_find_root(complex guess);
 
