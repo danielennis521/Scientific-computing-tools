@@ -6,6 +6,6 @@
 using namespace std;
 
 
-polynomial lagrange_interp(vector<double> x, vector<double> y);
+polynomial lagrange_coeff(vector<double> x, vector<double> y);
 
-polynomial newton_interp(vector<double> x, vector<double> y);
+polynomial newton_coeff(vector<double> x, vector<double> y);
