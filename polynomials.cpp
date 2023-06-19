@@ -14,7 +14,7 @@ polynomial::polynomial(vector<double> coef){
 polynomial::polynomial(polynomial &p){
     vector<double> coef = p.get_coeff();
     coefficients = coef;
-    deg = coef.size();
+    deg = coef.size()-1;
 };
 
 polynomial::polynomial(){
@@ -197,6 +197,20 @@ polynomial polynomial::operator-(double x){
 
 polynomial polynomial::operator*(polynomial& p){
 
+    vector<double> v;
+    int n=deg;
+    int m=p.get_deg();
+
+    for(int i=0; i<= n+m; i++) v.push_back(0.0);
+
+    for(int i=n; i>=0; i--){
+        for(int j=m; j>=0; j--){
+            v[i+j] += p[j] *coefficients[i];
+        };
+    };
+
+    polynomial res(v);
+    return res;
 };
 
 polynomial polynomial::operator*(double x){
