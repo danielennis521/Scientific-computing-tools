@@ -152,7 +152,15 @@ double polynomial::nth_deriv_at(double x, int n){
 };
 
 complex polynomial::nth_deriv_at(complex& z, int n){
-
+    complex result;
+    double c=1.0;
+    for(int j=deg; j>deg-n; j--) c = c*j;
+    result.r = c*coefficients[deg];
+    for(int i=deg-1; i>=n; i--){
+        c = 1.0;
+        for(int j=i; j>deg-n; j--) c = c*j;
+        result = result + result*z + c*coefficients[i];
+    };
 };
 
 polynomial polynomial::operator+(polynomial& p){
@@ -214,7 +222,10 @@ polynomial polynomial::operator*(polynomial& p){
 };
 
 polynomial polynomial::operator*(double x){
-
+    vector<double> v;
+    for (int i=0; i<=deg; i++) v.push_back(coefficients[i]*x);
+    polynomial result(v);
+    return result;
 };
 
 double& polynomial::operator[](const int i){
