@@ -30,7 +30,6 @@ polynomial lagrange_coeff(vector<double> x, vector<double> y){
 
         res = res + l;
     };
-
     return res;
 };
 
@@ -66,13 +65,20 @@ double lagrange_interp(double t, vector<double> x, vector<double> y){
 
 double newton_interp(double t, vector<double> x, vector<double> y){
     int n=x.size();
+    double res;
+    vector<double> c;
     if (x.size() != y.size()) throw invalid_argument( "vectors must be of equal size" );
     vector<double> v = {y[0]};
 
+    c.push_back(y[0]);
     for (int i=1; i<n; i++){
-
-        for (int j=0; j<i; j++){
-            
-        };
+        c.push_back(y[i]);
+        for (int j=1; j<i; j++) c[i] -= (x[i] - x[j])*c[j];
+        c[i] /= x[i] - x[i];
     };
+
+    res = c[n-2] + c[n-1]*(t-x[n-2]);
+    for (int i=n-3; i>=0; i--) res = res*(t - x[i]) + c[i];
+
+    return res;
 };
