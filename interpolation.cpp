@@ -65,16 +65,21 @@ double lagrange_interp(double t, vector<double> x, vector<double> y){
 
 double newton_interp(double t, vector<double> x, vector<double> y){
     int n=x.size();
-    double res;
+    double res, p;
     vector<double> c;
     if (x.size() != y.size()) throw invalid_argument( "vectors must be of equal size" );
-    vector<double> v = {y[0]};
 
     c.push_back(y[0]);
     for (int i=1; i<n; i++){
-        c.push_back(y[i]);
-        for (int j=1; j<i; j++) c[i] -= (x[i] - x[j])*c[j];
-        c[i] /= x[i] - x[i];
+        c.push_back(y[i] - c[0]);
+        for (int j=1; j<i; j++){
+            p=1.0;
+            for (int k=0; k<j; k++) p *= (x[i] - x[k]);
+            c[i] -= p*c[j];
+        };
+        p=1.0;
+        for (int k=0; k<i; k++) p *= (x[i] - x[k]);
+        c[i] /= p;
     };
 
     res = c[n-2] + c[n-1]*(t-x[n-2]);
