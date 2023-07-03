@@ -35,10 +35,34 @@ polynomial lagrange_coeff(vector<double> x, vector<double> y){
 
 
 polynomial newton_coeff(vector<double> x, vector<double> y){
-
+    int n=x.size();
+    double p;
+    vector<double> c;
     if (x.size() != y.size()) throw invalid_argument( "vectors must be of equal size" );
 
+    c.push_back(y[0]);
+    for (int i=1; i<n; i++){
+        c.push_back(y[i] - c[0]);
+        for (int j=1; j<i; j++){
+            p=1.0;
+            for (int k=0; k<j; k++) p *= (x[i] - x[k]);
+            c[i] -= p*c[j];
+        };
+        p=1.0;
+        for (int k=0; k<i; k++) p *= (x[i] - x[k]);
+        c[i] /= p;
+    };
 
+    vector<double> v = {c[n-2] - c[n-1]*x[n-2], c[n-1]};
+    polynomial res(v), t(v);
+
+    t[1] = 1;
+    for (int i=n-3; i>=0; i--){
+        t[0] = -x[i];
+        res = res*t + c[i];
+    };
+
+    return res;
 };
 
 
