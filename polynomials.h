@@ -2,16 +2,18 @@
 #include<cmath>
 #include<iostream>
 #include<vector>
-#include "complex.h"
+#include <complex>
 using namespace std;
 
 class polynomial
 {
 private:
-    vector<double> coefficients;
+    vector<complex<double>> coefficients;
     int deg;
 
 public:
+    polynomial(vector<complex<double>> coef);
+
     polynomial(vector<double> coef);
 
     polynomial(polynomial &p);
@@ -22,25 +24,25 @@ public:
 
     int get_deg();
 
-    vector<double> get_coeff();
+    vector<complex<double>> get_coeff();
 
-    double at(double x);
+    complex<double> at(complex<double> z);
 
-    complex at(complex z);
+    complex<double> deriv_at(complex<double> z);
 
-    double deriv_at(double x);
+    complex<double> nth_deriv_at(complex<double>& z, int n);
 
-    complex deriv_at(complex z);
+    complex<double> find_root(complex<double>& guess);
 
-    double nth_deriv_at(double x, int n);
+    complex<double> min_root();
 
-    complex nth_deriv_at(complex& z, int n);
+    vector<complex<double>> jt_roots();
 
-    double find_real_root(double guess);
+    vector<complex<double>> newton_roots();
 
-    complex find_root(complex& guess);
+    polynomial deriv();
 
-    vector<complex> newton_roots();
+    polynomial nth_deriv(int n);
 
     polynomial operator+(polynomial& p);
 
@@ -54,8 +56,11 @@ public:
 
     polynomial operator*(double x);
 
-    double& operator[](const int i);
+    complex<double>& operator[](const int i);
 
-    int counter_find_root(complex guess);
+    int counter_find_root(complex<double> guess);
+
+    void reduce();
 
 };
+
