@@ -87,6 +87,7 @@ double lagrange_interp(double t, vector<double> x, vector<double> y){
 };
 
 
+
 double newton_interp(double t, vector<double> x, vector<double> y){
     int n=x.size();
     double res, p;
