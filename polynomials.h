@@ -46,21 +46,26 @@ public:
 
     polynomial operator+(polynomial& p);
 
-    polynomial operator+(double x);
+    polynomial operator+(complex<double> x);
 
     polynomial operator-(polynomial& p);
 
-    polynomial operator-(double x);
+    polynomial operator-(complex<double> x);
 
     polynomial operator*(polynomial& p);
 
-    polynomial operator*(double x);
+    polynomial operator*(complex<double> x);
+
+    vector<polynomial> operator/(polynomial& p);
+
+    polynomial operator/(complex<double> x);
 
     complex<double>& operator[](const int i);
+
+    void append(complex<double> x);
 
     int counter_find_root(complex<double> guess);
 
     void reduce();
 
 };
-
