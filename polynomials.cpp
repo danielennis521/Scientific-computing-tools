@@ -66,27 +66,34 @@ int polynomial::counter_find_root(complex<double> guess){    // find a root and 
 complex<double> polynomial::min_root(){        // finds the minimum modulus root of a polynomial via Jenkins Traub
 
     int L, M;
-    complex<double> c(0.0, 0.0), s(0.0, 0.0), t;
-    vector<complex<double>> h;
+    complex<double> s = {0.0, 0.0};
+    complex<double> pn = this->at(s);
+    polynomial h = this->deriv();
+    polynomial t;
+    vector<polynomial> f;
     
     // stage one 
-    // for(int i=1; i<=deg; i++){
-    //     c = {coefficients[i], };
-    //      h.push_back(i*1.0*c);
-    // };
-
-    // for(int i=1; i<5; i++){
-    //     t = this->at(s)/horner_eval(s, h);
-        
-    // };
+    for(int i=1; i<M; i++){
+        t = *this*(h.at(s)/pn);
+        h = h-t;
+        h.reduce();
+    };  
 
     // stage two
     for(int i=1; i<L; i++){
-
+        f[0][0] = s;
+        f[0][1] = {1.0, 0.0};
+        
+        t = *this*(h.at(s)/pn);
+        h = h-t;
+        f = h/f[0];
+        h = f[0];
     };
 
     // stage three
-
+    while(){
+        s = s - h[0]*(this->at(s)/h.at(s));
+    };
 
 };
 
@@ -196,7 +203,7 @@ polynomial polynomial::operator+(polynomial& p){
     return result;
 };
 
-polynomial polynomial::operator+(double x){
+polynomial polynomial::operator+(complex<double> x){
     vector<complex<double>> s = coefficients;
     s[deg] += x;
     polynomial result(s);
@@ -216,7 +223,7 @@ polynomial polynomial::operator-(polynomial& p){
     return result;
 };
 
-polynomial polynomial::operator-(double x){
+polynomial polynomial::operator-(complex<double> x){
     vector<complex<double>> s = coefficients;
     s[deg] -= x;
     polynomial result(s);
@@ -241,11 +248,22 @@ polynomial polynomial::operator*(polynomial& p){
     return res;
 };
 
-polynomial polynomial::operator*(double x){
+polynomial polynomial::operator*(complex<double> x){
     vector<complex<double>> v;
     for (int i=0; i<=deg; i++) v.push_back(coefficients[i]*x);
     polynomial result(v);
     return result;
+};
+
+polynomial polynomial::operator/(complex<double> x){
+    vector<complex<double>> v;
+    for (int i=0; i<=deg; i++) v.push_back(coefficients[i]/x);
+    polynomial result(v);
+    return result;
+};
+
+vector<polynomial> polynomial::operator/(polynomial& p){ // second entry of the returned vector is the remainder from division
+
 };
 
 complex<double>& polynomial::operator[](const int i){
@@ -270,4 +288,9 @@ void polynomial::reduce(){                  // resize the polynomial by deleting
     for(int i=1; i<=deg; i++) c.push_back(coefficients[i]);
     deg--;
     coefficients = c;
+};
+
+void polynomial::append(complex<double> x){
+    coefficients.push_back(x);
+    deg++;
 };
