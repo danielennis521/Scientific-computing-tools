@@ -2,6 +2,7 @@
 #include<iostream>
 #include<vector>
 #include <complex>
+#include<string>
 #include "polynomials.h"
 using namespace std;
 
@@ -41,7 +42,7 @@ complex<double> polynomial::find_root(complex<double>& guess){    // find a real
     complex<double> prev(guess.real()-1.0, guess.imag()-1.0);
     complex<double> cur = guess;
 
-    while(abs(abs(prev)-abs(cur)) > 1.0e-20){
+    while(norm(prev - cur) > 1.0e-20){
         prev = cur;
         cur = cur - at(cur)/deriv_at(cur);
     };
@@ -65,12 +66,14 @@ int polynomial::counter_find_root(complex<double> guess){    // find a root and 
 
 complex<double> polynomial::min_root(){        // finds the minimum modulus root of a polynomial via Jenkins Traub
 
-    int L, M;
+    int L=5, M=5;
     complex<double> s = {0.0, 0.0};
+    complex<double> sp = {0.0, 0.0};
     complex<double> pn = this->at(s);
     polynomial h = this->deriv();
     polynomial t;
     vector<polynomial> f;
+
     
     // stage one 
     for(int i=1; i<M; i++){
@@ -79,8 +82,29 @@ complex<double> polynomial::min_root(){        // finds the minimum modulus root
         h.reduce();
     };  
 
+
     // stage two
+    for(int i=0; i<=deg; i++) t[i] = {norm(coefficients[i]/coefficients[deg]), 0.0};
+    t[0] = -1.0*t[0];
+    s = {1.0, 0.0};
+    s = t.find_root(s);     // determine the fixed shift value based on lower bound
+    cout<<s;
+    cout<<endl;
+    t.disp();
+
     for(int i=1; i<L; i++){
+        f[0][0] = s;
+        f[0][1] = {1.0, 0.0};
+
+        t = *this*(h.at(s)/pn);
+        h = h-t;
+        f = h/f[0];
+        h = f[0];
+    };
+
+
+    // stage three
+    while(norm(s - sp) > 1.0e-10){
         f[0][0] = s;
         f[0][1] = {1.0, 0.0};
         
@@ -88,10 +112,7 @@ complex<double> polynomial::min_root(){        // finds the minimum modulus root
         h = h-t;
         f = h/f[0];
         h = f[0];
-    };
-
-    // stage three
-    while(){
+        sp = s;
         s = s - h[0]*(this->at(s)/h.at(s));
     };
 
@@ -271,7 +292,9 @@ complex<double>& polynomial::operator[](const int i){
 };
 
 void polynomial::disp(){
-    for(int i=0; i<=deg; i++) cout<<coefficients[i]<<' ';
+    for(int i=deg; i>=0; i--){
+        cout << coefficients[i];
+    };
     cout<<endl;
 }
 
