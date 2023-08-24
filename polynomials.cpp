@@ -1,18 +1,38 @@
 #include<cmath>
 #include<iostream>
 #include<vector>
-#include <complex>
+#include<complex>
 #include<string>
+#include<cstdlib>
 #include "polynomials.h"
 using namespace std;
 
 
 
 /*
-The following section defines the class methods for the polynomial class
+The following section defines the private methods for the polynomial class
 */
 
-polynomial::polynomial(vector<complex<double>> coef){
+void polynomial::mon_div(complex<double> x){      
+    complex<double> s, r;
+
+    r = coefficients[deg];
+    for(int i=deg-1; i>=0; i--){      // monomial synthetic division
+        s = coefficients[i];
+        coefficients[i] = r;
+        r = s + r*x;
+    };
+    coefficients.pop_back();
+    deg--;
+};
+
+
+/*
+The following section defines the public methods for the polynomial class
+*/
+
+
+polynomial::polynomial(vector<complex<double>> coef){   
     coefficients = coef;
     deg = coef.size() - 1;
 };
@@ -27,7 +47,7 @@ polynomial::polynomial(vector<double> coef){
     };
 };
 
-polynomial::polynomial(polynomial &p){
+polynomial::polynomial(polynomial& p){
     vector<complex<double>> coef = p.get_coeff();
     coefficients = coef;
     deg = coef.size()-1;
@@ -51,8 +71,8 @@ complex<double> polynomial::find_root(complex<double>& guess){    // find a real
 };
 
 int polynomial::counter_find_root(complex<double> guess){    // find a root and return the root and iterations 
-    complex prev(guess.real()-1.0, guess.imag()-1.0);
-    complex cur = guess;
+    complex<double> prev(guess.real()-1.0, guess.imag()-1.0);
+    complex<double> cur = guess;
     int counter = 0;
 
     while(abs(norm(prev)-norm(cur)) > 1.0e-20){
@@ -65,21 +85,20 @@ int polynomial::counter_find_root(complex<double> guess){    // find a root and 
 
 
 complex<double> polynomial::min_root(){        // finds the minimum modulus root of a polynomial via Jenkins Traub
-
-    int L=5, M=5;
-    complex<double> s = {0.0, 0.0};
-    complex<double> sp = {0.0, 0.0};
-    complex<double> pn = this->at(s);
-    polynomial h = this->deriv();
-    polynomial t;
-    vector<polynomial> f;
+    bool pass=false;
+    int reset=0, M=5;
+    double r;
+    complex<double> s = {0.0, 0.0}, sp = {1.0, 1.0}, pn = this->at(s), t0 = {0.0, 0.0},
+                    t1 = {0.0, 0.0}, t2 = {0.0, 0.0};
+    polynomial h = this->deriv(), t;
 
     
     // stage one 
     for(int i=1; i<M; i++){
         t = *this*(h.at(s)/pn);
         h = h-t;
-        h.reduce();
+        h.pop_tail();
+        h.disp();
     };  
 
 
@@ -91,31 +110,49 @@ complex<double> polynomial::min_root(){        // finds the minimum modulus root
     cout<<s;
     cout<<endl;
     t.disp();
+    cout<<endl;
 
-    for(int i=1; i<L; i++){
-        f[0][0] = s;
-        f[0][1] = {1.0, 0.0};
+    r = rand()*2.0*3.141592653589793/RAND_MAX;
+    s = {s.real()*cos(r), s.real()*sin(r)};
 
-        t = *this*(h.at(s)/pn);
+    for(int i=0; i<3; i++){
+        t = *this*(h.at(s)/(this->at(s)));
         h = h-t;
-        f = h/f[0];
-        h = f[0];
+        h.mon_div(s);
+        t0 = t1;
+        t1 = t2;
+        t2 = s - h[get_deg()]*((this->at(s))/h.at(s));   
+    };
+
+    while(true){
+        t = *this*(h.at(s)/(this->at(s)));
+        h = h-t;
+        h.mon_div(s);
+        t0 = t1;
+        t1 = t2;
+        t2 = s - h[h.get_deg()]*((this->at(s))/h.at(s));  
+
+        reset++;
+        if (reset == 200) break;
+        else if(norm(t1 - t0)< 0.5*norm(t0) && norm(t2 - t1)< 0.5*norm(t1)){
+            pass = true;
+            break;
+        };
     };
 
 
     // stage three
-    while(norm(s - sp) > 1.0e-10){
-        f[0][0] = s;
-        f[0][1] = {1.0, 0.0};
-        
-        t = *this*(h.at(s)/pn);
+    s = s - h[0]*((this->at(s))/h.at(s));
+
+    while(norm(s - sp) > 1.0e-10){    
+        t = *this*(h.at(s)/(this->at(s)));
         h = h-t;
-        f = h/f[0];
-        h = f[0];
+        h.mon_div(s);
         sp = s;
-        s = s - h[0]*(this->at(s)/h.at(s));
+        s = s - h[h.get_deg()]*((this->at(s))/h.at(s));
     };
 
+    return s;
 };
 
 
@@ -136,38 +173,22 @@ vector<complex<double>> polynomial::newton_roots(){    // find all roots via new
     int mult;
     bool check=false;
 
-    while (num_found <= deg){
+    while (num_found < deg){
 
         guess =  {rand()%100 -50, rand()%100 -50};
         next = find_root(guess);
         roots.push_back(next);
 
-        if(next.imag() == 0){        // monomial synthetic division
-            a = next.real();
-            r = coefficients[deg-num_found];
-            coefficients.pop_back();
-            for(int i=deg-1-num_found; i>=0; i--){
-                s = coefficients[i];
-                coefficients[i] = r;
-                r = s + r*a;
-            };
-        }else{                  // quadratic synthetic division
-            a = next.real()*next.real() + next.imag()*next.imag();
-            b = -2.0 * next.real();
-            roots.push_back(conj(next));
-            for(int i=0; i<deg-2-num_found; i++) q.push_back(0.0);
-
-            for(int i=deg-2-num_found; i>=0; i--){
-                q[i] = coefficients[i+2];
-                coefficients[i+1] -= q[i]*b;
-                coefficients[i] -= q[i]*a;
-            };
-            coefficients.pop_back();
-            coefficients.pop_back();
-            for(int i=0; i<=deg-num_found; i++) coefficients[i] = q[i];
+        a = next;
+        r = coefficients[deg-num_found];
+        coefficients[deg-num_found] = 0;
+        for(int i=deg-1-num_found; i>=0; i--){      // monomial synthetic division
+            s = coefficients[i];
+            coefficients[i] = r;
+            r = s + r*a;
         };
-        if (next.imag()==0) num_found ++;
-        else num_found += 2;
+
+        num_found++;
     };
 
     coefficients = temp;
@@ -209,6 +230,7 @@ complex<double> polynomial::nth_deriv_at(complex<double>& z, int n){
         for(int j=i; j>deg-n; j--) c = c*j;
         result = result + result*z + c*coefficients[i];
     };
+    return result;
 };
 
 polynomial polynomial::operator+(polynomial& p){
@@ -233,13 +255,10 @@ polynomial polynomial::operator+(complex<double> x){
 
 polynomial polynomial::operator-(polynomial& p){
     vector<complex<double>> s = coefficients;
-    vector<complex<double>> t = p.get_coeff();
     int m = min(deg, p.get_deg());
 
-    for(int i=0; i<=m; i++) s[i] -= t[i];
-    if (deg > p.get_deg()){
-        for(int i=m+1; i<=deg; i++) s.push_back(-1.0*t[i]);
-    };
+    for(int i=0; i<=m; i++) s[i] -= p[i];
+    if (deg < p.get_deg()) for(int i=m+1; i<=p.get_deg(); i++) s.push_back(-1.0*p[i]);
     polynomial result(s);
     return result;
 };
@@ -283,9 +302,22 @@ polynomial polynomial::operator/(complex<double> x){
     return result;
 };
 
-vector<polynomial> polynomial::operator/(polynomial& p){ // second entry of the returned vector is the remainder from division
+// vector<polynomial> polynomial::operator/(polynomial& p){ // second entry of the returned vector is the remainder from division
+//     polynomial t;    
+//     vector<polynomial> r = {*this, t};
+//     complex<double> c;
 
-};
+//     for (int i=deg; i>=p.get_deg(); i--){
+//         c = ((*this)[i])/p[i];
+//         r[1].push_tail(c);
+
+//         for(int j=0; j<i; j++) r[0][j] = r[0][j] - c*p[j];
+//     };
+
+//     for(int i=deg; i>=p.get_deg(); i--) r[0].pop_head();
+
+//     return r;
+// };
 
 complex<double>& polynomial::operator[](const int i){
     return coefficients[i];
@@ -306,14 +338,27 @@ vector<complex<double>> polynomial::get_coeff(){
     return coefficients;
 };
 
-void polynomial::reduce(){                  // resize the polynomial by deleting the constant term
+void polynomial::pop_tail(){                  // resize the polynomial by deleting the constant term
     vector<complex<double>> c;
     for(int i=1; i<=deg; i++) c.push_back(coefficients[i]);
     deg--;
     coefficients = c;
 };
 
-void polynomial::append(complex<double> x){
+void polynomial::pop_head(){                  // resize the polynomial by deleting the leading term
+    coefficients.pop_back();
+    deg--;
+};
+
+void polynomial::push_head(complex<double> x){
     coefficients.push_back(x);
     deg++;
+};
+
+void polynomial::push_tail(complex<double> x){
+    vector<complex<double>> c;
+    c.push_back(x);
+    for(int i=0; i<=deg; i++) c.push_back(coefficients[i]);
+    deg++;
+    coefficients = c;
 };
