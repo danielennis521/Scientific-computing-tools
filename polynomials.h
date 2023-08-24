@@ -2,6 +2,7 @@
 #include<cmath>
 #include<iostream>
 #include<vector>
+#include<string>
 #include <complex>
 using namespace std;
 
@@ -11,12 +12,15 @@ private:
     vector<complex<double>> coefficients;
     int deg;
 
+    void mon_div(complex<double> x);
+
 public:
+
     polynomial(vector<complex<double>> coef);
 
     polynomial(vector<double> coef);
 
-    polynomial(polynomial &p);
+    polynomial(polynomial& p);
 
     polynomial();
 
@@ -56,16 +60,21 @@ public:
 
     polynomial operator*(complex<double> x);
 
-    vector<polynomial> operator/(polynomial& p);
+    // vector<polynomial> operator/(polynomial& p);
 
     polynomial operator/(complex<double> x);
 
     complex<double>& operator[](const int i);
 
-    void append(complex<double> x);
+    void push_head(complex<double> x);
+
+    void push_tail(complex<double> x);
 
     int counter_find_root(complex<double> guess);
 
-    void reduce();
+    void pop_tail();
+
+    void pop_head();
 
 };
+
