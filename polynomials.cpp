@@ -91,60 +91,54 @@ complex<double> polynomial::min_root(){        // finds the minimum modulus root
     complex<double> s = {0.0, 0.0}, sp = {1.0, 1.0}, pn = this->at(s), t0 = {0.0, 0.0},
                     t1 = {0.0, 0.0}, t2 = {0.0, 0.0};
     polynomial h = this->deriv(), t;
-
     
     // stage one 
     for(int i=1; i<M; i++){
         t = *this*(h.at(s)/pn);
         h = h-t;
         h.pop_tail();
-        h.disp();
     };  
-
 
     // stage two
     for(int i=0; i<=deg; i++) t[i] = {norm(coefficients[i]/coefficients[deg]), 0.0};
     t[0] = -1.0*t[0];
     s = {1.0, 0.0};
     s = t.find_root(s);     // determine the fixed shift value based on lower bound
-    cout<<s;
-    cout<<endl;
-    t.disp();
-    cout<<endl;
 
-    r = rand()*2.0*3.141592653589793/RAND_MAX;
-    s = {s.real()*cos(r), s.real()*sin(r)};
+    while(!pass){
+        r = rand()*2.0*3.141592653589793/RAND_MAX;
+        s = {s.real()*cos(r), s.real()*sin(r)};
 
-    for(int i=0; i<3; i++){
-        t = *this*(h.at(s)/(this->at(s)));
-        h = h-t;
-        h.mon_div(s);
-        t0 = t1;
-        t1 = t2;
-        t2 = s - h[get_deg()]*((this->at(s))/h.at(s));   
-    };
+        for(int i=0; i<3; i++){
+            t = *this*(h.at(s)/(this->at(s)));
+            h = h-t;
+            h.mon_div(s);
+            t0 = t1;
+            t1 = t2;
+            t2 = s - h[get_deg()]*((this->at(s))/h.at(s));   
+        };
 
-    while(true){
-        t = *this*(h.at(s)/(this->at(s)));
-        h = h-t;
-        h.mon_div(s);
-        t0 = t1;
-        t1 = t2;
-        t2 = s - h[h.get_deg()]*((this->at(s))/h.at(s));  
+        while(true){
+            t = *this*(h.at(s)/(this->at(s)));
+            h = h-t;
+            h.mon_div(s);
+            t0 = t1;
+            t1 = t2;
+            t2 = s - h[h.get_deg()]*((this->at(s))/h.at(s));  
 
-        reset++;
-        if (reset == 200) break;
-        else if(norm(t1 - t0)< 0.5*norm(t0) && norm(t2 - t1)< 0.5*norm(t1)){
-            pass = true;
-            break;
+            reset++;
+            if (reset == 50) break;
+            else if(norm(t1 - t0)< 0.5*norm(t0) && norm(t2 - t1)< 0.5*norm(t1)){
+                pass = true;
+                break;
+            };
         };
     };
-
 
     // stage three
     s = s - h[0]*((this->at(s))/h.at(s));
 
-    while(norm(s - sp) > 1.0e-10){    
+    while(norm(s - sp) > 1.0e-12){
         t = *this*(h.at(s)/(this->at(s)));
         h = h-t;
         h.mon_div(s);
@@ -157,41 +151,39 @@ complex<double> polynomial::min_root(){        // finds the minimum modulus root
 
 
 vector<complex<double>> polynomial::jt_roots(){     // finds all roots via Jenkins Traub algorithm
+    vector<complex<double>> temp = coefficients, roots;
+    int d = deg;
 
+    for(int i=0; i<d; i++){ 
+        roots.push_back(min_root());
+        mon_div(roots[i]);
+    };
 
-
+    deg = d;
+    coefficients=temp;
+    return roots;
 };
 
 
 vector<complex<double>> polynomial::newton_roots(){    // find all roots via newtons method
-    complex<double> guess, next, d;
-    vector<complex<double>> roots;
-    vector<complex<double>> temp = coefficients;
-    vector<complex<double>> q;
+    complex<double> guess, next;
+    vector<complex<double>> roots, q, temp = coefficients;
     complex<double> a, b, r, s;
-    int num_found=0;
-    int mult;
+    int num_found=0, d=deg;
     bool check=false;
 
-    while (num_found < deg){
+    for(int i=0; i<d; i++){
 
         guess =  {rand()%100 -50, rand()%100 -50};
         next = find_root(guess);
         roots.push_back(next);
-
-        a = next;
-        r = coefficients[deg-num_found];
-        coefficients[deg-num_found] = 0;
-        for(int i=deg-1-num_found; i>=0; i--){      // monomial synthetic division
-            s = coefficients[i];
-            coefficients[i] = r;
-            r = s + r*a;
-        };
+        mon_div(roots[i]);
 
         num_found++;
     };
 
     coefficients = temp;
+    deg = d;
     return roots;
 };
 
