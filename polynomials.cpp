@@ -188,7 +188,6 @@ vector<complex<double>> polynomial::newton_roots(){    // find all roots via new
 };
 
 polynomial polynomial::deriv(){                     // returns the derivative as a new polynomial
-
     vector<complex<double>> c;
     for(int i=1; i<=deg; i++) c.push_back(i*1.0*coefficients[i]);
     polynomial res(c);
@@ -198,6 +197,29 @@ polynomial polynomial::deriv(){                     // returns the derivative as
 polynomial polynomial::nth_deriv(int n){                 // returns the nth derivative as a new polynomial
 
 
+};
+
+polynomial polynomial::anti_deriv(complex<double> c = {0.0, 0.0}){  // return anti derivative of polynomial with const of integration c
+    vector<complex<double>> v;
+    v.push_back(c);
+    for(int i=0; i<=deg; i++) v.push_back(coefficients[i]/(1.0*(i+1)));
+    polynomial res(v);
+    return res;   
+
+};
+
+complex<double> polynomial::integrate(complex<double> a, complex<double> b){
+    complex<double> Fa=a*coefficients[deg]/(deg-1.0), Fb=b*coefficients[deg]/(deg-1.0);
+    for(int i=0; i<=deg; i++){
+        Fa = Fa*a + coefficients[i]/(i-1.0);
+        Fb = Fb*b + coefficients[i]/(i-1.0);
+    };
+    return (Fb - Fa);
+};
+
+complex<double> polynomial::integrate(double a, double b){
+    complex<double> ca={a, 0.0}, cb={b, 0.0};
+    return integrate(ca, cb);
 };
 
 complex<double> polynomial::at(complex<double> z){                // evaluate at complex number
@@ -294,22 +316,25 @@ polynomial polynomial::operator/(complex<double> x){
     return result;
 };
 
-// vector<polynomial> polynomial::operator/(polynomial& p){ // second entry of the returned vector is the remainder from division
-//     polynomial t;    
-//     vector<polynomial> r = {*this, t};
-//     complex<double> c;
+vector<polynomial> polynomial::operator/(polynomial& p){ // second entry of the returned vector is the remainder from division
+    polynomial t, q(coefficients);    
+    vector<polynomial> r;
+    complex<double> c;
 
-//     for (int i=deg; i>=p.get_deg(); i--){
-//         c = ((*this)[i])/p[i];
-//         r[1].push_tail(c);
+    r.push_back(q);
+    r.push_back(t);
 
-//         for(int j=0; j<i; j++) r[0][j] = r[0][j] - c*p[j];
-//     };
+    for (int i=deg; i>=p.get_deg(); i--){
+        c = ((*this)[i])/p[i];
+        r[1].push_tail(c);
 
-//     for(int i=deg; i>=p.get_deg(); i--) r[0].pop_head();
+        for(int j=0; j<i; j++) r[0][j] = r[0][j] - c*p[j];
+    };
 
-//     return r;
-// };
+    for(int i=deg; i>=p.get_deg(); i--) r[0].pop_head();
+
+    return r;
+};
 
 complex<double>& polynomial::operator[](const int i){
     return coefficients[i];
