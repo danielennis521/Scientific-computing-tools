@@ -48,6 +48,12 @@ public:
 
     polynomial nth_deriv(int n);
 
+    polynomial anti_deriv(complex<double> c = {0.0, 0.0});
+
+    complex<double> integrate(complex<double> a, complex<double> b);
+
+    complex<double> integrate(double a, double b);
+
     polynomial operator+(polynomial& p);
 
     polynomial operator+(complex<double> x);
@@ -60,7 +66,7 @@ public:
 
     polynomial operator*(complex<double> x);
 
-    // vector<polynomial> operator/(polynomial& p);
+    vector<polynomial> operator/(polynomial& p);
 
     polynomial operator/(complex<double> x);
 
@@ -77,4 +83,3 @@ public:
     void pop_head();
 
 };
-
