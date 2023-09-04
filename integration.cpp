@@ -54,17 +54,19 @@ double simpsons38_rule(double left, double right, double (*func)(double)){
 };
 
 
-double fast_integrate(double left, double right, double (*func)(double)){
+double turbo_quadrature(double a, double b, double fa, double fb, double (*func)(double)){
+
+    double m = a + (b-a)/2.0;
+    double fm = func(m);
+    double I1 = (b-a)*fm*0.5;
+    double I2 = (b-a)*(fa+fb)*0.5;
+    if (a <= m || b>= m) return I2;
+    else if (abs(I1 - I2) < 1e-12) return I2;
+    else return (turbo_quadrature(a, m, fa, fm, func) + turbo_quadrature(m, b, fm, fb, func));
 
 };
 
 
-double turbo_quadrature(double left, double right, double (*func)(double)){
-
-};
-
-
-double integral_estimate(double left, double right, double (*func)(double)){
-
-// sample a series of points across the domain of integration
+double integrate(double left, double right, double (*func)(double)){
+    return turbo_quadrature(left, right, func(left), func(right), func);
 };
