@@ -4,7 +4,7 @@
 #include "interpolation.h"
 
 
-polynomial lagrange_coeff(vector<double> x, vector<double> y){
+polynomial lagrange_coeff(vector<double> &x, vector<double> &y){
     if (x.size() != y.size()) throw invalid_argument( "vectors must be of equal size" );
     int n=x.size();
     vector<double> u;
@@ -34,7 +34,7 @@ polynomial lagrange_coeff(vector<double> x, vector<double> y){
 };
 
 
-polynomial newton_coeff(vector<double> x, vector<double> y){
+polynomial newton_coeff(vector<double> &x, vector<double> &y){
     int n=x.size();
     double p;
     vector<double> c;
@@ -66,7 +66,12 @@ polynomial newton_coeff(vector<double> x, vector<double> y){
 };
 
 
-double lagrange_interp(double t, vector<double> x, vector<double> y){
+vector<polynomial> cubic_spline_interp(vector<double> &x, vector<double> &y){
+
+};
+
+
+double lagrange_interp(double t, vector<double> &x, vector<double> &y){
 
     if (x.size() != y.size()) throw invalid_argument( "vectors must be of equal size" );
     int n=x.size();
@@ -88,7 +93,7 @@ double lagrange_interp(double t, vector<double> x, vector<double> y){
 
 
 
-double newton_interp(double t, vector<double> x, vector<double> y){
+double newton_interp(double t, vector<double> &x, vector<double> &y){
     int n=x.size();
     double res, p;
     vector<double> c;
