@@ -150,6 +150,11 @@ complex<double> polynomial::min_root(){        // finds the minimum modulus root
 };
 
 
+double polynomial::min_real_root(){
+
+};
+
+
 vector<complex<double>> polynomial::jt_roots(){     // finds all roots via Jenkins Traub algorithm
     vector<complex<double>> temp = coefficients, roots;
     int d = deg;
@@ -186,6 +191,12 @@ vector<complex<double>> polynomial::newton_roots(){    // find all roots via new
     deg = d;
     return roots;
 };
+
+
+vector<double> polynomial::real_roots(){        // variant of JT that only finds real roots
+
+};
+
 
 polynomial polynomial::deriv(){                     // returns the derivative as a new polynomial
     vector<complex<double>> c;
