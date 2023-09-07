@@ -2,6 +2,7 @@
 #include<iostream>
 #include<vector>
 #include "interpolation.h"
+#include "Matricies.h"
 
 
 polynomial lagrange_coeff(vector<double> &x, vector<double> &y){
@@ -66,7 +67,73 @@ polynomial newton_coeff(vector<double> &x, vector<double> &y){
 };
 
 
-vector<polynomial> cubic_spline_interp(vector<double> &x, vector<double> &y){
+vector<vector<double>> cubic_spline_interp(vector<double> &x, vector<double> &y){
+    if (x.size() != y.size()) throw invalid_argument( "vectors must be of equal size" );
+    int dim = 4*(x.size()-1);
+    vector<vector<double>> rows, res;
+    vector<double> v;
+    vector<complex<double>> u;
+
+    for(int i=0; i<dim; i++) v.push_back(0.0);
+
+    for(int i=0; i<(x.size()-1); i++){
+        v[4*i] = 1.0;             // left endpoint continuity
+        v[4*i+1] =  x[i]; 
+        v[4*i+2] = x[i]*x[i];
+        v[4*i+3] = v[4*i+2]*x[i];
+        rows.push_back(v);
+
+        v[4*i+1] =  x[i+1];        // right endpoint continuity
+        v[4*i+2] = x[i+1]*x[i+1];
+        v[4*i+3] = v[4*i+2]*x[i+1];
+        rows.push_back(v);
+
+        v[4*i] = v[4*i+1] = v[4*i+2] = v[4*i+3] = 0.0;
+    };
+
+    for(int i=1; i<(x.size()-1); i++){
+        v[4*i+1] = 1.0;           // continuity of first derivative
+        v[4*i+2] = 2*x[i];
+        v[4*i+3] = 3*x[i]*x[i];
+
+        v[4*i+5] = -1.0;
+        v[4*i+6] = -v[4*i+2];
+        v[4*i+7] = -v[4*i+3];
+        rows.push_back(v);
+
+        v[4*i+1] = v[4*i+5] = 0.0;
+        v[4*i+2] = 2.0;           // continuity of second derivative
+        v[4*i+3] = 6*x[i];
+
+        v[4*i+6] = -2.0;
+        v[4*i+7] = -v[4*i+3];
+        rows.push_back(v);
+
+        v[4*i+2] = v[4*i+3] = v[4*i+6] = v[4*i+7] = 0.0;
+    };
+
+    v[2] = 2.0;                 // natural edge conditions (second derivative zero)
+    v[3] = 6*x[0];
+    rows.push_back(v);
+    v[2] = v[3] = 0.0;
+
+    v[dim-2] = 2.0;
+    v[dim-1] = 6*x[0];
+    rows.push_back(v);
+    v[dim-2] = v[dim-1] = 0.0;    
+
+    matrix M(rows);
+    for(int i=0; i<dim/2; i++) v[i] = y[i];
+
+    u = M.solve(v);
+    for(int i=0; i<dim/2; i++) v[i] = u[i].real();
+
+    for(int i=0; i<x.size()-1; i++) res.push_back({v[i*3], v[i*3+1], v[i*3+2]});
+    return res;
+};
+
+
+vector<vector<double>> quick_cubic_spline(vector<double> &x, vector<double> &y){
 
 };
 
