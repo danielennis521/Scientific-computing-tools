@@ -40,9 +40,13 @@ public:
 
     complex<double> min_root();
 
+    double min_real_root();
+
     vector<complex<double>> jt_roots();
 
     vector<complex<double>> newton_roots();
+
+    vector<double> real_roots();
 
     polynomial deriv();
 
