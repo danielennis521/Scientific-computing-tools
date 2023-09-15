@@ -6,7 +6,9 @@
 
 using namespace std;
 
-
+/* The convention Im using here is that each vector in the matrix is a column.
+If you have a list of vectors you want to use as rows in a matrix just construct the matrix 
+and then use the transpose function */
 class matrix
 {
 public:
