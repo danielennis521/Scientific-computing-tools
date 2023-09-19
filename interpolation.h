@@ -11,6 +11,7 @@ polynomial lagrange_coeff(vector<double> &x, vector<double> &y);
 
 polynomial newton_coeff(vector<double> &x, vector<double> &y);
 
+// these spline methods are used by the integration methods, thats why the return vectors not polynomials
 vector<vector<double>> cubic_spline_interp(vector<double> &x, vector<double> &y);
 
 vector<vector<double>> nth_spline_interp(vector<double> &x, vector<double> &y);
@@ -31,7 +32,7 @@ class spline_interpolation
 {
 private:
     vector<double> t;
-    vector<polynomial> p;
+    //vector<polynomial> p;
     int n;
 
 public:
