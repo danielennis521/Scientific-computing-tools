@@ -6,9 +6,7 @@
 
 using namespace std;
 
-/* The convention Im using here is that each vector in the matrix is a column.
-If you have a list of vectors you want to use as rows in a matrix just construct the matrix 
-and then use the transpose function */
+
 class matrix
 {
 public:
@@ -18,7 +16,7 @@ public:
 
     vector<complex<double>>& operator[](int i);
 
-    int matrix::get_dim();
+    int get_dim();
 
     void disp();
 
@@ -26,9 +24,11 @@ public:
 
     vector<complex<double>> solve(vector<double> b);
 
-    vector<complex<double>> transform(vector<complex<double>> v);
+    vector<complex<double>> map(vector<complex<double>> v);
 
     vector<complex<double>> max_eigen();
+
+    void transform();
 
 private:
 
