@@ -24,7 +24,26 @@ matrix::matrix(vector<vector<complex<double>>> M){
 
 
 matrix::matrix(vector<vector<double>> M){
+    square = true;
+    row_dim = M[0].size();
+    col_dim = M.size();
+    complex<double> c;
 
+    if (row_dim != col_dim)square = false;
+
+    for(int i=1; i<M.size(); i++){
+        if(row_dim != M[i].size()) throw invalid_argument("Not a valid matrix");
+    };
+
+    for(int i=1; i<M.size(); i++) order.push_back(i);
+
+    for(int i=0; i<M.size(); i++){
+        A.push_back({});
+        for(int j=0; j<M[0].size(); j++){
+            c = {M[i][j], 0.0};
+            A[i].push_back(c);
+        };
+    };
 };
 
 
@@ -41,7 +60,7 @@ int matrix::get_dim(){
 void matrix::disp(){
     for(int i=0; i<row_dim; i++){
         for(int j=0; j<row_dim; j++){
-            cout<<A[j][order[i]]<<' ';
+            cout<<A[j][i]<<' ';
         };
         cout<<'\n';
     };
@@ -65,7 +84,7 @@ vector<complex<double>> matrix::solve(vector<double> b){
 };
 
 
-vector<complex<double>> matrix::transform(vector<complex<double>> v){
+vector<complex<double>> matrix::map(vector<complex<double>> v){
     vector<complex<double>> solution;
     for (int i=0; i< col_dim; i++) solution.push_back(0.0);
 
@@ -74,6 +93,21 @@ vector<complex<double>> matrix::transform(vector<complex<double>> v){
     };
 
     return solution;
+};
+
+
+void matrix::transform(){
+    vector<vector<complex<double>>> M;
+    int t;
+    for(int i=0; i<row_dim; i++){
+        M.push_back({});
+        for(int j=0; j<col_dim; j++) M[i].push_back(A[j][i]);
+    };
+
+    t = col_dim;
+    col_dim = row_dim;
+    row_dim = t;
+    A = M;
 };
 
 
@@ -108,7 +142,8 @@ vector<complex<double>> matrix::lin_sys(vector<complex<double>> b){
         };
     };
 
-    return b;
+    for(int i=0; i<row_dim; i++) solution[i] = b[order[i]];
+    return solution;
 };
 
 
@@ -205,4 +240,3 @@ vector<complex<double>> matrix::qr_decomp(){     // qr decomposition for lest sq
     };
     decomp_current = true;
 };
-
