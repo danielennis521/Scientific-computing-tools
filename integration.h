@@ -6,6 +6,10 @@
 
 using namespace std;
 
+double spline_quadrature(vector<double> x, double (*func)(double));
+
+double spline_quadrature(vector<double> x, vector<double> y);
+
 double adaptive_quadrature(double left, double right, double (*func)(double),
                             double (*Q1)(double, double, double (*f)(double)),
                             double (*Q2)(double, double, double (*f)(double))
