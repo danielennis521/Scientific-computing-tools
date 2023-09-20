@@ -3,8 +3,27 @@
 #include<vector>
 #include<string>
 #include "integration.h"
-
+#include "interpolation.h"
 using namespace std;
+
+
+double spline_quadrature(vector<double> x, double (*func)(double)){
+    vector<double> y;
+    for(int i=0; i<x.size(); i++) y.push_back(func(x[i]));
+
+    return spline_quadrature(x, y);
+};
+
+
+double spline_quadrature(vector<double> x, vector<double> y){
+    vector<vector<double>> p = cubic_spline_interp(x, y);
+    double res = 0.0;
+    for(int i=0; i<p.size(); i++){
+        res +=  x[i+1]*(p[i][0] + x[i+1]*(p[i][1]/2.0 + x[i+1]*(p[i][2]/3.0 + x[i+1]*p[i][3]/4.0)));
+        res -= x[i]*(p[i][0] + x[i]*(p[i][1]/2.0 + x[i]*(p[i][2]/3.0 + x[i]*p[i][3]/4.0)));
+    };
+    return res;
+};
 
 
 double adaptive_quadrature(double left, double right, double (*func)(double),
