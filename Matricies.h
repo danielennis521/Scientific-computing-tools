@@ -28,7 +28,19 @@ public:
 
     vector<complex<double>> max_eigen();
 
+    vector<complex<double>> all_eigen_vals();
+
+    vector<vector<complex<double>>> all_eigen_vec();
+
     void transform();
+
+    matrix operator*(matrix B);
+
+    matrix operator*(complex<double> z);
+
+    matrix operator+(matrix B);
+
+    matrix operator-(matrix B);
 
 private:
 
@@ -38,14 +50,16 @@ private:
 
     void lu_decomp();
 
-    vector<complex<double>> qr_decomp();
+    void qr_decomp();
 
     vector<vector<complex<double>>> A;         // the actual entries of the matrix
     vector<vector<complex<double>>> LU;        // the triangular decomposition of the matrix
+    vector<vector<complex<double>>> Q;
+    vector<vector<complex<double>>> R;
     vector<int> order;                     // track order of rows rather than actually interchange
-    int row_dim;
-    int col_dim;  
+    int row_num;
+    int col_num;  
     bool square;  
-    bool decomp_current;
+    bool lu_current, qr_current;
 
 };
